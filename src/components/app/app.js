@@ -1,76 +1,72 @@
-import React, {useEffect} from 'react';
-
-import { getPokemon, getAllPokemon } from '../../services/poke-service'
+import React, {useEffect, useState} from 'react';
 import './app.css';
-import ListComponents from "../list-components/list-components";
-import PersonDetails from "../person-details/person-details";
 import Header from "../header/heder";
-import LoadMore from "../load-more/load-more";
-import PokemonService from "../../services/poke-service";
+import ListComponents from "../list-components/list-components";
+import {getAllPokemon, getPokemon} from '../../services/poke-service'
+import PokeDetails from "../poke-details/poke-details";
 
+function App() {
 
-function App(){
-
-    const [pokemonData, setPokemonData] = useState([])
-    const [loadMore, setLoadMore] = useState('');
-    const [loading, setLoading] = useState(true);
-    const initialURL = 'https://pokeapi.co/api/v2/pokemon'
+    const [pokeData, setPokeData] = useState([]);
+    const [loadUrl, setLoadUrl] = useState('');
+    const [spinner, setSpinner] = useState(true);
+    const url = 'https://pokeapi.co/api/v2/pokemon'
 
     useEffect(() => {
-    async function fetchData() {
-        let response = await getAllPokemon(initialURL)
-        setLoadMore(response.next);
-        await loadPokemon(response.results);
-        setLoading(false);
+        async function fetchData() {
+            let resp = await getAllPokemon(url);
+            setLoadUrl(resp.next);
+            await loadUrl(resp.results);
+            setSpinner(false);
+        }
+
+        fetchData();
+    }, [])
+
+    const load = async () => {
+        setSpinner(true);
+        let data = await getAllPokemon(loadUrl);
+
     }
-    fetchData();
-}, []);
 
-
-const load = async () => {
-        setLoading(true);
-        let data = await getAllPokemon(loadMore);
-        await loadPokemon(data.results);
-        setLoadMore(data.next);
-        setLoading(false);
-    };
-
-    const loadPokemon = async (data) => {
-        let _pokemonData = await Promise.all(data.map(async pokemon => {
-            let pokemonRecord = await getPokemon(pokemon)
-            return pokemonRecord
+    const loadPoke = async (data) => {
+        let pokeData = await Promise.all(data.map(async pokemon => {
+            let pokemonRec = await getPokemon(pokemon)
+            return pokemonRec
         }))
-        setPokemonData(_pokemonData);
+        setPokeData(pokeData);
     }
 
-        return (
+    return (
+        <div>
             <div>
                 <Header/>
-                <div>
-                    <div>
-                        <ListComponents/>
+            </div>
+            <div className="container">
+                <div className="row">
+                    <div className="col-6 col-lg-6 ">
+                        <p className="p-style">
+                            <ListComponents/>
+                        </p>
                     </div>
-                    <div>
-                        <PersonDetails/>
+                    <div className="container">
+                        { pokeData.map((pokemon, i) => {
+                            return <PokeDetails key={i} pokemon={pokemon}/>
+                        })}
                     </div>
                 </div>
-                <button onClick={load}>Load More</button>
+                <div className="col-1 load-more">
+                    <button onClick={load}> Load More</button>
+                </div>
             </div>
-
-        );
-}
+        </div>
+            )
+        }
 export default App;
 
-// <div>
-//     <Header />
-//     <RandomPlanet />
-//
-//     <div className="row mb2">
-//         <div className="col-md-6">
-//             <ItemList />
-//         </div>
-//         <div className="col-md-6">
-//             <PersonDetails />
-//         </div>
-//     </div>
-// </div>
+
+
+
+
+
+

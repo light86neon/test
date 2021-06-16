@@ -1,8 +1,12 @@
-import React from 'react';
+import React, {Component} from "react";
 
-import './load-more.css';
-
-const [nextUrl, setNextUrl] = useState('');
-
-
+const LoadMore = () => {
+    return (
+        <div className="d-flex">
+            <h3>
+                LoadMore
+            </h3>
+        </div>
+    );
+};
 export default LoadMore;
